@@ -68,8 +68,35 @@ It is currently supported to manage:
 Configuring KSQL servers
 -----------
 
-In this configuration, you can define the KSQL server to be used during the artefacts creation, this could be done like this:
+To manage KSQL artefacts, you must define the ksqlDB server URL to be used during the artefacts creation. This could be done like this:
 
 .. code-block:: bash
 
-    platform.server.ksql = "http://ksql:8088"
+    platform.server.ksql.url = "http://ksql:8088"
+
+*NOTE* The URL must contain the protocol and the port.
+
+
+The following additional configuration keys are optional and can be used
+to configure authentication and SSL related properties:
+
+.. code-block:: bash
+
+    platform.server.ksql.useAlpn = false
+    platform.server.ksql.truststore = "/path/to/truststore.jks"
+    platform.server.ksql.truststorePw = "truststoresecret"
+    platform.server.ksql.verifyHost = true
+    platform.server.ksql.keystore = "/path/to/keystore.jks"
+    platform.server.ksql.keystorePw = "keystoresecret"
+    platform.server.ksql.user = "basic auth user"
+    platform.server.ksql.password = "basic auth password"
+
+
+E.g. to connect to a Confluent Cloud ksqlDB cluster, you'd use the following properties:
+
+.. code-block:: bash
+
+    platform.server.ksql.url = "https://<host>:443"
+    platform.server.ksql.useAlpn = true
+    platform.server.ksql.user = "<ksqlDB-API-key>"
+    platform.server.ksql.password = "<ksqlDB-API-secret>"

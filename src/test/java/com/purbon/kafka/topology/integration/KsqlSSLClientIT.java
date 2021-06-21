@@ -9,20 +9,23 @@ import com.purbon.kafka.topology.api.ksql.KsqlClientConfig;
 import com.purbon.kafka.topology.integration.containerutils.ContainerFactory;
 import com.purbon.kafka.topology.integration.containerutils.KsqlContainer;
 import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaContainer;
+import com.purbon.kafka.topology.integration.containerutils.SslKsqlContainer;
 import java.io.IOException;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class KsqlClientIT {
+public class KsqlSSLClientIT {
 
-  static SaslPlaintextKafkaContainer container;
-  static KsqlContainer ksqlContainer;
+  private static final String KSQLDB_TRUSTSTORE_JKS = "/ksql-ssl/truststore/ksqldb.truststore.jks";
+  private static final String KSQLDB_KEYSTORE_JKS = "/ksql-ssl/keystore/ksqldb.keystore.jks";
+  private static SaslPlaintextKafkaContainer container;
+  private static KsqlContainer sslKsqlContainer;
 
   @After
   public void after() {
-    ksqlContainer.stop();
+    sslKsqlContainer.stop();
     container.stop();
   }
 
@@ -30,15 +33,25 @@ public class KsqlClientIT {
   public void configure() {
     container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
     container.start();
-    ksqlContainer = new KsqlContainer(container);
-    ksqlContainer.start();
+    sslKsqlContainer = new SslKsqlContainer(container, KSQLDB_TRUSTSTORE_JKS, KSQLDB_KEYSTORE_JKS);
+    try {
+      sslKsqlContainer.start();
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.out.println(sslKsqlContainer.getLogs());
+    }
   }
 
   @Test
   public void testStreamTableCreateAndDelete() throws IOException {
-
-    KsqlApiClient client =
-        new KsqlApiClient(KsqlClientConfig.builder().setServer(ksqlContainer.getUrl()).build());
+    KsqlClientConfig config =
+        KsqlClientConfig.builder()
+            .setServer(sslKsqlContainer.getUrl())
+            .setUseAlpn(true)
+            .setTrustStore(getClass().getResource(KSQLDB_TRUSTSTORE_JKS).getPath())
+            .setTrustStorePassword("ksqldb")
+            .build();
+    KsqlApiClient client = new KsqlApiClient(config);
 
     String streamName = "riderLocations";
 

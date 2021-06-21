@@ -78,17 +78,14 @@ public class JulieOps implements AutoCloseable {
 
     PrincipalProviderFactory principalProviderFactory = new PrincipalProviderFactory(builderConfig);
 
-    JulieOps builder =
-        build(
-            topologyFile,
-            plansFile,
-            builderConfig,
-            adminClient,
-            factory.get(),
-            factory.builder(),
-            principalProviderFactory.get());
-
-    return builder;
+    return build(
+        topologyFile,
+        plansFile,
+        builderConfig,
+        adminClient,
+        factory.get(),
+        factory.builder(),
+        principalProviderFactory.get());
   }
 
   public static JulieOps build(
@@ -192,10 +189,7 @@ public class JulieOps implements AutoCloseable {
 
     Map<String, KsqlApiClient> clients = new HashMap<>();
     if (config.hasKSQLServer()) {
-      String ksqlAddress = config.getKSQLServer();
-      String server = ksqlAddress.substring(0, ksqlAddress.lastIndexOf(":"));
-      Integer port = Integer.parseInt(ksqlAddress.substring(ksqlAddress.lastIndexOf(":") + 1));
-      KsqlApiClient client = new KsqlApiClient(server, port);
+      KsqlApiClient client = new KsqlApiClient(config.getKSQLClientConfig());
       clients.put("default", client);
     }
 
@@ -280,7 +274,7 @@ public class JulieOps implements AutoCloseable {
   private static BackendController buildBackendController(Configuration config) throws IOException {
 
     String backendClass = config.getStateProcessorImplementationClassName();
-    Backend backend = null;
+    Backend backend;
     try {
       if (backendClass.equalsIgnoreCase(STATE_PROCESSOR_DEFAULT_CLASS)) {
         backend = new FileBackend();

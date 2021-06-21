@@ -84,15 +84,9 @@ public class KSqlArtefactManager extends ArtefactManager {
         .map(
             artefact -> {
               if (artefact instanceof KsqlStreamArtefact) {
-                return new KsqlStreamArtefact(
-                    artefact.getPath(),
-                    null,
-                    artefact.getName());
+                return new KsqlStreamArtefact(artefact.getPath(), null, artefact.getName());
               } else if (artefact instanceof KsqlTableArtefact) {
-                return new KsqlTableArtefact(
-                    artefact.getPath(),
-                    null,
-                    artefact.getName());
+                return new KsqlTableArtefact(artefact.getPath(), null, artefact.getName());
               } else {
                 LOGGER.error("KSQL Artefact of wrong type " + artefact.getClass());
                 return null;

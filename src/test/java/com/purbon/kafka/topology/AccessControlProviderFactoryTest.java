@@ -13,6 +13,7 @@ import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.api.mds.MDSApiClientBuilder;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.SimpleAclsProvider;
+import com.purbon.kafka.topology.utils.BasicAuth;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,7 +63,7 @@ public class AccessControlProviderFactoryTest {
 
     AccessControlProvider provider = factory.get();
 
-    verify(mdsApiClient, times(1)).login("alice", "alice-secret");
+    verify(mdsApiClient, times(1)).setBasicAuth(new BasicAuth("alice", "alice-secret"));
     verify(mdsApiClient, times(1)).authenticate();
 
     assertThat(provider, instanceOf(RBACProvider.class));

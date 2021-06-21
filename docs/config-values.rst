@@ -2,7 +2,7 @@
 Important configuration values
 *******************************
 
-This page describe the most common configuration values for Julie Ops, this values can be set within the topology-builder properties file.
+This page describe the most common configuration values for Julie Ops, these values can be set within the topology-builder properties file.
 
 Access control configuration
 -----------

@@ -88,9 +88,7 @@ public class AccessControlProviderFactory {
 
   private MDSApiClient apiClientLogIn() {
     MDSApiClient apiClient = mdsApiClientBuilder.build();
-    String mdsUser = config.getProperty(MDS_USER_CONFIG);
-    String mdsPassword = config.getProperty(MDS_PASSWORD_CONFIG);
-    apiClient.login(mdsUser, mdsPassword);
+    config.getMdsBasicAuth().ifPresent(apiClient::setBasicAuth);
     return apiClient;
   }
 }

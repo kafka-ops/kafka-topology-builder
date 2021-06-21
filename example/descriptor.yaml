@@ -20,6 +20,14 @@ projects:
           write:
             - "topicC"
             - "topicD"
+    ksql:
+      artefacts:
+        streams:
+          - path: "ksql/riderlocations.sql"
+            name: "riderLocations"
+        tables:
+          - path: "ksql/users.sql"
+            name: "users"
     connectors:
       - principal: "User:Connect1"
         group: "group"

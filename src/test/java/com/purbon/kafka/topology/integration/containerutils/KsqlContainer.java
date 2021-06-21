@@ -1,6 +1,7 @@
 package com.purbon.kafka.topology.integration.containerutils;
 
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
 public class KsqlContainer extends GenericContainer<KsqlContainer> {
@@ -18,6 +19,7 @@ public class KsqlContainer extends GenericContainer<KsqlContainer> {
     super(dockerImageName);
     String kafkaHost = kafka.getNetworkAliases().get(1);
     withExposedPorts(KSQL_PORT);
+    waitingFor(Wait.forLogMessage(".+ INFO Server up and running .+", 1));
     // withEnv("KSQL_KSQL_SERVICE_ID", "confluent_ksql_streams_01");
     withEnv("KSQL_SECURITY_PROTOCOL", "SASL_PLAINTEXT");
     withEnv("KSQL_BOOTSTRAP_SERVERS", "SASL_PLAINTEXT://" + kafkaHost + ":" + 9091);

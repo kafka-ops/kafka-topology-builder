@@ -39,6 +39,7 @@ import com.purbon.kafka.topology.model.users.platform.SchemaRegistryInstance;
 import com.purbon.kafka.topology.roles.RBACProvider;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
 import com.purbon.kafka.topology.roles.rbac.RBACBindingsBuilder;
+import com.purbon.kafka.topology.utils.BasicAuth;
 import com.purbon.kafka.topology.utils.TestUtils;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -77,7 +78,7 @@ public class RBACPRoviderRbacIT extends MDSBaseTest {
     TestUtils.deleteStateFile();
 
     apiClient = new MDSApiClient(mdsServer);
-    apiClient.login(mdsUser, mdsPassword);
+    apiClient.setBasicAuth(new BasicAuth(mdsUser, mdsPassword));
     apiClient.authenticate();
     apiClient.setKafkaClusterId(getKafkaClusterID());
     apiClient.setSchemaRegistryClusterID(getSchemaRegistryClusterID());

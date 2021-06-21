@@ -11,6 +11,12 @@ public class KsqlStreamArtefact extends KsqlArtefact {
       @JsonProperty("path") String path,
       @JsonProperty("server") String label,
       @JsonProperty("name") String name) {
-    super(path, null, name);
+    super(path, label, name);
+  }
+
+  @Override
+  public String toString() {
+    String serverLabel = getServerLabel() == null ? "" : String.format(" (%s)", getServerLabel());
+    return "STREAM " + getName() + serverLabel;
   }
 }

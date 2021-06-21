@@ -1,9 +1,12 @@
 package com.purbon.kafka.topology;
 
-import static com.purbon.kafka.topology.CommandLineInterface.*;
+import static com.purbon.kafka.topology.CommandLineInterface.BROKERS_OPTION;
+import static com.purbon.kafka.topology.CommandLineInterface.CLIENT_CONFIG_OPTION;
 import static com.purbon.kafka.topology.Constants.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.purbon.kafka.topology.api.ksql.KsqlClientConfig;
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Impl.ProjectImpl;
 import com.purbon.kafka.topology.model.Impl.TopicImpl;
@@ -177,5 +180,30 @@ public class ConfigurationTest {
     Configuration config = Configuration.build(cliOps);
     assertThat(config.getKafkaInternalTopicPrefixes())
         .isEqualTo(Arrays.asList("_", "topicA", "topicB"));
+  }
+
+  @Test
+  public void testKsqlServerWithHttps() {
+    String clientConfigFile = TestUtils.getResourceFilename("/client-config.properties");
+    cliOps.put(CLIENT_CONFIG_OPTION, clientConfigFile);
+    props.put(PLATFORM_SERVER_KSQL_URL, "https://example.com:8083");
+    Configuration config = new Configuration(cliOps, props);
+    KsqlClientConfig ksqlClientConfig = config.getKSQLClientConfig();
+
+    assertThat(ksqlClientConfig.getServer().getProtocol()).isEqualTo("https");
+    assertThat(ksqlClientConfig.getServer().getHost()).isEqualTo("example.com");
+    assertThat(ksqlClientConfig.getServer().getPort()).isEqualTo(8083);
+  }
+
+  @Test
+  public void testKsqlServerWithoutScheme() {
+    String clientConfigFile = TestUtils.getResourceFilename("/client-config.properties");
+    cliOps.put(CLIENT_CONFIG_OPTION, clientConfigFile);
+    props.put(PLATFORM_SERVER_KSQL_URL, "example.com:8083");
+    Configuration config = new Configuration(cliOps, props);
+
+    assertThatThrownBy(config::getKSQLClientConfig)
+        .hasMessageContaining("example.com:8083")
+        .isInstanceOf(IllegalArgumentException.class);
   }
 }

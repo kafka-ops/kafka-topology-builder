@@ -9,6 +9,7 @@ import com.purbon.kafka.topology.Configuration;
 import com.purbon.kafka.topology.ExecutionPlan;
 import com.purbon.kafka.topology.KSqlArtefactManager;
 import com.purbon.kafka.topology.api.ksql.KsqlApiClient;
+import com.purbon.kafka.topology.api.ksql.KsqlClientConfig;
 import com.purbon.kafka.topology.integration.containerutils.ContainerFactory;
 import com.purbon.kafka.topology.integration.containerutils.KsqlContainer;
 import com.purbon.kafka.topology.integration.containerutils.SaslPlaintextKafkaContainer;
@@ -41,16 +42,17 @@ public class KsqlManagerIT {
   }
 
   @Before
-  public void configure() throws InterruptedException, IOException {
+  public void configure() throws IOException {
     container = ContainerFactory.fetchSaslKafkaContainer(System.getProperty("cp.version"));
     container.start();
     ksqlContainer = new KsqlContainer(container);
     ksqlContainer.start();
-    Thread.sleep(3000);
 
     Files.deleteIfExists(Paths.get(".cluster-state"));
 
-    client = new KsqlApiClient(ksqlContainer.getHost(), ksqlContainer.getPort());
+    KsqlClientConfig ksqlClientConfig =
+        KsqlClientConfig.builder().setServer(ksqlContainer.getUrl()).build();
+    client = new KsqlApiClient(ksqlClientConfig);
     parser = new TopologySerdes();
 
     this.plan = ExecutionPlan.init(new BackendController(), System.out);
@@ -73,7 +75,7 @@ public class KsqlManagerIT {
     props.put(TOPOLOGY_STATE_FROM_CLUSTER, "true");
     props.put(TOPOLOGY_TOPIC_STATE_FROM_CLUSTER, "false");
     props.put(ALLOW_DELETE_KSQL_ARTEFACTS, "true");
-    props.put(PLATFORM_SERVER_KSQL, "http://"+client.getServer());
+    props.put(PLATFORM_SERVER_KSQL_URL, "http://" + client.getServer());
 
     File file = TestUtils.getResourceFile("/descriptor-ksql.yaml");
 
@@ -96,7 +98,7 @@ public class KsqlManagerIT {
 
     List<String> streams = client.listStreams();
     assertThat(streams).hasSize(1);
-    assertThat(streams).contains("{\"path\":\"\",\"name\":\"RIDERLOCATIONS\"}");
+    assertThat(streams.get(0)).contains("{\"path\":\"\",\"name\":\"RIDERLOCATIONS\"");
 
     topology.getProjects().get(0).getKsqlArtefacts().getStreams().remove(0);
 

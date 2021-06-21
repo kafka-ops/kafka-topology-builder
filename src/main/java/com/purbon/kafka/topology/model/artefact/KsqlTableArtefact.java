@@ -13,4 +13,10 @@ public class KsqlTableArtefact extends KsqlArtefact {
       @JsonProperty("name") String name) {
     super(path, label, name);
   }
+
+  @Override
+  public String toString() {
+    String serverLabel = getServerLabel() == null ? "" : String.format(" (%s)", getServerLabel());
+    return "TABLE " + getName() + serverLabel;
+  }
 }

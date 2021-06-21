@@ -3,13 +3,16 @@ package com.purbon.kafka.topology;
 import static com.purbon.kafka.topology.CommandLineInterface.*;
 import static com.purbon.kafka.topology.Constants.*;
 
+import com.purbon.kafka.topology.api.ksql.KsqlClientConfig;
 import com.purbon.kafka.topology.exceptions.ConfigurationException;
 import com.purbon.kafka.topology.model.Project;
 import com.purbon.kafka.topology.model.Topic;
 import com.purbon.kafka.topology.model.Topology;
 import com.purbon.kafka.topology.serdes.TopologySerdes.FileType;
+import com.purbon.kafka.topology.utils.BasicAuth;
 import com.purbon.kafka.topology.utils.Pair;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import java.io.File;
 import java.util.*;
@@ -363,22 +366,56 @@ public class Configuration {
     return servers.stream()
         .map(server -> server.split(":"))
         .map(
-            new Function<String[], Pair<String, String>>() {
-              @Override
-              public Pair<String, String> apply(String[] strings) {
-                String key = strings[0].strip();
-                String value = String.join(":", Arrays.copyOfRange(strings, 1, strings.length));
-                return new Pair<>(key, value);
-              }
+            strings -> {
+              String key = strings[0].strip();
+              String value = String.join(":", Arrays.copyOfRange(strings, 1, strings.length));
+              return new Pair<>(key, value);
             })
         .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
   }
 
-  public String getKSQLServer() {
-    return config.getString(PLATFORM_SERVER_KSQL);
+  public KsqlClientConfig getKSQLClientConfig() {
+    KsqlClientConfig.Builder ksqlConf =
+        new KsqlClientConfig.Builder()
+            .setServer(getProperty(PLATFORM_SERVER_KSQL_URL))
+            .setTrustStore(getPropertyOrNull(PLATFORM_SERVER_KSQL_TRUSTSTORE))
+            .setTrustStorePassword(getPropertyOrNull(PLATFORM_SERVER_KSQL_TRUSTSTORE_PW))
+            .setKeyStore(getPropertyOrNull(PLATFORM_SERVER_KSQL_KEYSTORE))
+            .setKeyStorePassword(getPropertyOrNull(PLATFORM_SERVER_KSQL_KEYSTORE_PW));
+    if (hasProperty(PLATFORM_SERVER_KSQL_ALPN)) {
+      ksqlConf.setUseAlpn(config.getBoolean(PLATFORM_SERVER_KSQL_ALPN));
+    }
+    if (hasProperty(PLATFORM_SERVER_KSQL_BASIC_AUTH_PASSWORD)
+        && hasProperty(PLATFORM_SERVER_KSQL_BASIC_AUTH_USER)) {
+      ksqlConf.setBasicAuth(
+          new BasicAuth(
+              getProperty(PLATFORM_SERVER_KSQL_BASIC_AUTH_USER),
+              getProperty(PLATFORM_SERVER_KSQL_BASIC_AUTH_PASSWORD)));
+    }
+
+    if (hasProperty(PLATFORM_SERVER_KSQL_VERIFY_HOST)) {
+      ksqlConf.setVerifyHost(config.getBoolean(PLATFORM_SERVER_KSQL_VERIFY_HOST));
+    }
+    return ksqlConf.build();
   }
 
   public boolean hasKSQLServer() {
-    return config.hasPath(PLATFORM_SERVER_KSQL);
+    return config.hasPath(PLATFORM_SERVER_KSQL_URL);
+  }
+
+  private String getPropertyOrNull(String key) {
+    try {
+      return config.getString(key);
+    } catch (ConfigException.Missing e) {
+      return null;
+    }
+  }
+
+  public Optional<BasicAuth> getMdsBasicAuth() {
+    BasicAuth auth = null;
+    if (hasProperty(MDS_USER_CONFIG) && hasProperty(MDS_PASSWORD_CONFIG)) {
+      auth = new BasicAuth(getProperty(MDS_USER_CONFIG), getProperty(MDS_PASSWORD_CONFIG));
+    }
+    return Optional.ofNullable(auth);
   }
 }

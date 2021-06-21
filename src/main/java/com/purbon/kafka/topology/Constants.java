@@ -2,6 +2,7 @@ package com.purbon.kafka.topology;
 
 public class Constants {
 
+  public static final String HTTPS = "https";
   public static final String KAFKA_INTERNAL_TOPIC_PREFIXES = "kafka.internal.topic.prefixes";
   public static final String ACCESS_CONTROL_IMPLEMENTATION_CLASS =
       "topology.builder.access.control.class";
@@ -82,7 +83,18 @@ public class Constants {
   public static final String GROUP_MANAGED_PREFIXES = "topology.group.managed.prefixes";
 
   public static final String PLATFORM_SERVERS_CONNECT = "platform.servers.connect";
-  public static final String PLATFORM_SERVER_KSQL = "platform.server.ksql";
+  public static final String PLATFORM_SERVER_KSQL_URL = "platform.server.ksql.url";
+  // XXX: consider re-using properties as they are used in ksql cli with --config-file
+  public static final String PLATFORM_SERVER_KSQL_ALPN = "platform.server.ksql.useAlpn";
+  public static final String PLATFORM_SERVER_KSQL_TRUSTSTORE = "platform.server.ksql.truststore";
+  public static final String PLATFORM_SERVER_KSQL_TRUSTSTORE_PW =
+      "platform.server.ksql.truststorePw";
+  public static final String PLATFORM_SERVER_KSQL_VERIFY_HOST = "platform.server.ksql.verifyHost";
+  public static final String PLATFORM_SERVER_KSQL_KEYSTORE = "platform.server.ksql.keystore";
+  public static final String PLATFORM_SERVER_KSQL_KEYSTORE_PW = "platform.server.ksql.keystorePw";
+  public static final String PLATFORM_SERVER_KSQL_BASIC_AUTH_USER = "platform.server.ksql.user";
+  public static final String PLATFORM_SERVER_KSQL_BASIC_AUTH_PASSWORD =
+      "platform.server.ksql.password";
 
   public static final String TOPOLOGY_BUILDER_INTERNAL_PRINCIPAL =
       "topology.builder.internal.principal";

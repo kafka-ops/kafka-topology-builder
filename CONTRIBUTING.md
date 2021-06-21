@@ -85,6 +85,7 @@ Example:
 ## Contribution Steps
 
 1. Test your changes! [Run](https://github.com/purbon/kafka-topology-builder#testing) the test suite
+2. Run `mvn fmt:format` to format the code
 3. Send a pull request! Push your changes to your fork of the repository and
    [submit a pull
    request](https://help.github.com/articles/using-pull-requests). In the pull

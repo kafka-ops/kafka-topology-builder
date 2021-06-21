@@ -11,6 +11,7 @@ import static org.junit.Assert.assertTrue;
 import com.purbon.kafka.topology.api.mds.AuthenticationCredentials;
 import com.purbon.kafka.topology.api.mds.MDSApiClient;
 import com.purbon.kafka.topology.roles.TopologyAclBinding;
+import com.purbon.kafka.topology.utils.BasicAuth;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -19,8 +20,8 @@ import org.junit.Test;
 
 public class MDSApiClientRbacIT extends MDSBaseTest {
 
-  private String mdsUser = "professor";
-  private String mdsPassword = "professor";
+  private final String mdsUser = "professor";
+  private final String mdsPassword = "professor";
 
   private MDSApiClient apiClient;
 
@@ -33,7 +34,7 @@ public class MDSApiClientRbacIT extends MDSBaseTest {
 
   @Test
   public void testMDSLogin() throws IOException {
-    apiClient.login(mdsUser, mdsPassword);
+    apiClient.setBasicAuth(new BasicAuth(mdsUser, mdsPassword));
     apiClient.authenticate();
     AuthenticationCredentials credentials = apiClient.getCredentials();
     assertFalse(credentials.getAuthToken().isEmpty());
@@ -41,13 +42,13 @@ public class MDSApiClientRbacIT extends MDSBaseTest {
 
   @Test(expected = IOException.class)
   public void testWithWrongMDSLogin() throws IOException {
-    apiClient.login("wrong-user", "wrong-password");
+    apiClient.setBasicAuth(new BasicAuth("wrong-user", "wrong-password"));
     apiClient.authenticate();
   }
 
   @Test
   public void testLookupRoles() throws IOException {
-    apiClient.login(mdsUser, mdsPassword);
+    apiClient.setBasicAuth(new BasicAuth(mdsUser, mdsPassword));
     apiClient.authenticate();
     apiClient.setKafkaClusterId(getKafkaClusterID());
 
@@ -57,7 +58,7 @@ public class MDSApiClientRbacIT extends MDSBaseTest {
 
   @Test
   public void testBindRoleToResource() throws IOException {
-    apiClient.login(mdsUser, mdsPassword);
+    apiClient.setBasicAuth(new BasicAuth(mdsUser, mdsPassword));
     apiClient.authenticate();
     apiClient.setKafkaClusterId(getKafkaClusterID());
 
@@ -83,7 +84,7 @@ public class MDSApiClientRbacIT extends MDSBaseTest {
 
   @Test
   public void testBindSecurityAdminRole() throws IOException {
-    apiClient.login(mdsUser, mdsPassword);
+    apiClient.setBasicAuth(new BasicAuth(mdsUser, mdsPassword));
     apiClient.authenticate();
     apiClient.setKafkaClusterId(getKafkaClusterID());
     apiClient.setSchemaRegistryClusterID("schema-registry");
@@ -104,7 +105,7 @@ public class MDSApiClientRbacIT extends MDSBaseTest {
 
   @Test
   public void testBindSubjectRole() throws IOException {
-    apiClient.login(mdsUser, mdsPassword);
+    apiClient.setBasicAuth(new BasicAuth(mdsUser, mdsPassword));
     apiClient.authenticate();
     apiClient.setKafkaClusterId(getKafkaClusterID());
     apiClient.setSchemaRegistryClusterID("schema-registry");
@@ -130,7 +131,7 @@ public class MDSApiClientRbacIT extends MDSBaseTest {
 
   @Test
   public void testBindResourceOwnerRole() throws IOException {
-    apiClient.login(mdsUser, mdsPassword);
+    apiClient.setBasicAuth(new BasicAuth(mdsUser, mdsPassword));
     apiClient.authenticate();
     apiClient.setKafkaClusterId(getKafkaClusterID());
 
