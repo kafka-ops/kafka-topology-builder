@@ -9,6 +9,10 @@ public interface Action {
 
   void run() throws IOException;
 
+  default void dryRun() throws IOException {
+    System.out.printf("No dryRun check specified for %s", this.getClass().getName());
+  };
+
   default List<TopologyAclBinding> getBindings() {
     return Collections.emptyList();
   }

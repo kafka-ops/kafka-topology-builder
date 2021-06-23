@@ -107,6 +107,7 @@ public class ExecutionPlan {
   private void execute(Action action, boolean dryRun) throws IOException {
     LOGGER.debug(String.format("Execution action %s (dryRun=%s)", action, dryRun));
     if (dryRun) {
+      action.dryRun();
       outputStream.println(action);
     } else {
       action.run();

@@ -102,4 +102,49 @@ public class SchemaRegistryManager {
       throw new SchemaRegistryManagerException(msg, e);
     }
   }
+
+  public boolean isCompatible(String subjectName, String schemaFile, String format) {
+    try {
+      return isCompatible(subjectName, schemaFilePath(schemaFile), format);
+    } catch (Exception e) {
+      throw new SchemaRegistryManagerException("Failed to parse the schema file " + schemaFile, e);
+    }
+  }
+
+  public boolean isCompatible(String subjectName, Path schemaFilePath, String format) {
+    LOGGER.debug(
+        String.format("Registering subject %s with source %s", subjectName, schemaFilePath));
+    try {
+      final String schema = new String(Files.readAllBytes(schemaFilePath), StandardCharsets.UTF_8);
+      return testCompatibility(subjectName, format, schema);
+    } catch (Exception e) {
+      throw new SchemaRegistryManagerException(
+          "Failed to parse the schema file " + schemaFilePath, e);
+    }
+  }
+
+  protected boolean testCompatibility(String subjectName, String schemaType, String schemaString) {
+    final Optional<ParsedSchema> maybeSchema =
+        schemaRegistryClient.parseSchema(schemaType, schemaString, Collections.emptyList());
+
+    final ParsedSchema parsedSchema =
+        maybeSchema.orElseThrow(
+            () -> {
+              final String msg =
+                  String.format(
+                      "Failed to parse the schema for subject '%s' of type '%s'",
+                      subjectName, schemaType);
+              return new SchemaRegistryManagerException(msg);
+            });
+
+    try {
+      return schemaRegistryClient.testCompatibility(subjectName, parsedSchema);
+    } catch (Exception e) {
+      final String msg =
+          String.format(
+              "Failed to test compatibility of schema for subject '%s' of type '%s'",
+              subjectName, schemaType);
+      throw new SchemaRegistryManagerException(msg, e);
+    }
+  }
 }

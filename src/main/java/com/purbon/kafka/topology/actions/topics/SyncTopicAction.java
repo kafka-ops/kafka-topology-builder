@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.kafka.common.errors.InvalidConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -46,6 +47,15 @@ public class SyncTopicAction extends BaseAction {
     syncTopic(topic, fullTopicName, listOfTopics);
   }
 
+  @Override
+  public void dryRun() throws IOException {
+    LOGGER.info(String.format("Checking schema compatibilities..."));
+    for (TopicSchemas schema : topic.getSchemas()) {
+      checkSchemaCompatibilityIfExists(schema.getKeySubject(), topic);
+      checkSchemaCompatibilityIfExists(schema.getValueSubject(), topic);
+    }
+  }
+
   private void syncTopic(Topic topic, String fullTopicName, Set<String> listOfTopics)
       throws IOException {
     LOGGER.debug(String.format("Sync topic %s", fullTopicName));
@@ -63,6 +73,17 @@ public class SyncTopicAction extends BaseAction {
     for (TopicSchemas schema : topic.getSchemas()) {
       registerSchemaIfExists(schema.getKeySubject(), topic);
       registerSchemaIfExists(schema.getValueSubject(), topic);
+    }
+  }
+
+  private void checkSchemaCompatibilityIfExists(Subject subject, Topic topic) throws IOException {
+    if (subject.hasSchemaFile()) {
+      String schemaFile = subject.getSchemaFile();
+      String subjectName = subject.buildSubjectName(topic);
+      if (!schemaRegistryManager.isCompatible(subjectName, schemaFile, subject.getFormat())) {
+        throw new InvalidConfigurationException(
+            String.format("Incompatible schema found on topic %s and some more info...", topic));
+      }
     }
   }
 
