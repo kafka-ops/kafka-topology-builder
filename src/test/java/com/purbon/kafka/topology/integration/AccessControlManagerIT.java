@@ -509,7 +509,18 @@ public class AccessControlManagerIT {
 
       Collection<AclBinding> acls = kafkaAdminClient.describeAcls(filter).values().get();
 
-      assertEquals(3, acls.size());
+      ResourcePatternFilter groupResourceFilter =
+          new ResourcePatternFilter(ResourceType.GROUP, null, PatternType.ANY);
+
+      AccessControlEntryFilter groupEntryFilter =
+          new AccessControlEntryFilter(
+              sr.getPrincipal(), null, AclOperation.ANY, AclPermissionType.ALLOW);
+      AclBindingFilter groupFilter = new AclBindingFilter(groupResourceFilter, groupEntryFilter);
+
+      Collection<AclBinding> groupAcls = kafkaAdminClient.describeAcls(groupFilter).values().get();
+
+      assertEquals(6, acls.size());
+      assertEquals(1, groupAcls.size());
     }
   }
 

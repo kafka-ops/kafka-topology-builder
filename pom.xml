@@ -428,7 +428,7 @@
     <commons.version>1.4</commons.version>
     <mockito.version>3.6.0</mockito.version>
     <junit.version>4.13.1</junit.version>
-    <testcontainers.version>1.15.2</testcontainers.version>
+    <testcontainers.version>1.15.3</testcontainers.version>
     <jedis.version>3.2.0</jedis.version>
     <confluent.version>6.1.0</confluent.version>
     <confluent-ce.version>6.1.0-ce</confluent-ce.version>
