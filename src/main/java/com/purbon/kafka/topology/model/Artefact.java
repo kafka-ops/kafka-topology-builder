@@ -1,8 +1,6 @@
 package com.purbon.kafka.topology.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
-import java.util.Locale;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
