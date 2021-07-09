@@ -354,7 +354,12 @@ public class RBACBindingsBuilder implements BindingsBuilderProvider {
   @Override
   public List<TopologyAclBinding> setSchemaAuthorization(String principal, List<String> subjects) {
     return subjects.stream()
-        .map(subject -> apiClient.bind(principal, RESOURCE_OWNER).forSchemaSubject(subject).apply())
+        .map(
+            subject ->
+                apiClient
+                    .bind(principal, RESOURCE_OWNER)
+                    .forSchemaSubject(subject)
+                    .apply("Subject", subject))
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
   }
