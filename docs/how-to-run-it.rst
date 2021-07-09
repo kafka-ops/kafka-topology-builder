@@ -1,9 +1,11 @@
-How can you run Julie Ops
+How can you install Julie Ops
 *******************************
 
 Julie Ops is available to be integrated using different artifacts:
 
 * As a **CLI tool**, available to be installed using rpm, deb and tar.gz packages from `github <https://github.com/kafka-ops/kafka-topology-builder/releases>`_.
+The rpm and deb releases are signed - if you are interested in importing the matching public key - you can download it here: `public key <https://github.com/kafka-ops/julie/blob/master/release/keys/public.key>`_.
+
 * As a **docker image**, available from `docker hub <https://hub.docker.com/repository/docker/purbon/kafka-topology-builder>`_.
 
 **NOTE**: In the future it will also be available as a jar to be integrated in other libraries.
